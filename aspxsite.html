@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1"><title>
+	Demo
+</title><meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" /><meta name="keywords" content="ASA24, ASA-24, Web, recall" /><link rel="stylesheet" type="text/css" href="styles/style.css" /><link rel="stylesheet" type="text/css" href="styles/jqModal.css" />
+	<script type="text/javascript" src="scripts/jquery-1.8.1.min.js"></script>
+    <script type="text/javascript" src="scripts/modernizr-2.0.6-development-only.js"></script>
+    <script type="text/javascript" language="javascript" src="scripts/jquery.query.js"></script>
+	<script type="text/javascript" language="javascript" src="scripts/jqModal.js"></script>
+	<script type="text/javascript" language="javascript" src="scripts/scripts.js"></script>		
+	<script type="text/javascript" language="javascript" src="scripts/asa24start.js"></script>
+	<script type="text/javascript" language="javascript" src="scripts/Silverlight.js"></script>
+	<script type="text/javascript">
+	    // init
+	    var profileId;
+	    var url = "https://asa24.nci.nih.gov/2013/";
+	    var params = "";
+	    var isAnonymousSite = "true";
+	    var isDemoLoginReady = "false";
+	    var isMobile = "false";
+
+	    profileId = "";
+	    $(window).ready(init);
+	    $(document).ready(function () {
+	        $('#divWhyRes').jqm({ trigger: 'a.showWhy' });
+	        $('#divHowRes').jqm({ trigger: 'a.showHow' });
+	        getProfile();
+
+	        //[06/05/2015-SY]:hide the div that display message for Chrome user (see Default.aspx and Demo.aspx)
+	        var act24 = new ACT24();
+	        if (act24.isWinChrome()) {
+	            if (isDemoLoginReady == "true") {
+	                $("#chromeOnWindowWarning").css("display", "none");
+	            }
+	            else {
+	                $("#chromeOnWindowWarning").css("display", ""); //initialize
+	            }
+	        };
+	    });
+
+	    //		$().read(function () {
+	    //			alert('test');
+	    //			$('#divWhyRes').jqm();
+	    //		});
+
+
+	    if (isDemoLoginReady == "true") {
+	        openApp();
+	    }
+
+	    function test() {
+	        var ver = document.getElementById('System.Web.UI.WebControls.HiddenField');
+	        alert(ver.value);
+	    }
+
+	    function DisplayDemoOptions() {
+	        if (isAnonymousSite == "true") {
+	            HideDiv('divButtonText');
+	            HideDiv('divButton');
+	            ShowDiv('divDemoButtonText');
+	            ShowDiv('divDemoButtonMain');
+	            ShowDiv('divDemoButtonKids');
+
+	            // Add more vertical space for buttons
+	            document.getElementById('buttonBlock').style.marginTop = "-70px";
+	        }
+	        else {
+	            ShowDiv('divButtonText');
+	            ShowDiv('divButton');
+	            HideDiv('divDemoButtonText');
+	            HideDiv('divDemoButtonMain');
+	            HideDiv('divDemoButtonKids');
+	        }
+	    }
+
+	    function HideDiv(DivId) {
+	        $("#" + DivId).hide(); // To Hide the Div
+	        //document.getElementById(DivId).style.display = "none";
+	    }
+
+	    function ShowDiv(DivId) {
+	        $("#" + DivId).show(); // To Show the Div
+	        //document.getElementById(DivId).style.display = "";
+	    }
+
+	    function RetainProfileId() {
+	        var TextBox = document.getElementById("txtProfileId");
+	        if (TextBox != null) {	            
+	            TextBox.value = profileId;
+	        } //else { alert('TxtBox is NULL'); }
+	    }
+	</script>
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			overflow: auto;
+		}
+		body {
+			padding: 0;
+			margin: 0;
+		}
+		
+		.silverlightHostClass {
+			position: absolute;
+			height:100%;
+			width:100%;
+		}
+		
+		a {	font-size:12px; }
+
+		.btn { display: block; position: relative; background: #eee; padding: 5px 5px 5px 5px; float: left; color: #000; font-family:verdana;font-weight:bold;font-size:14px;text-decoration: none; cursor: pointer; }
+		.btn * { font-style: normal; background-image: url(images/btn2.png); background-repeat: no-repeat; display: block; position: relative; }
+		.btn i { background-position: top left; position: absolute; margin-bottom: -5px;  top: 0; left: 0; width: 5px; height: 5px; }
+		.btn span { background-position: bottom left; left: -5px; padding: 0 0 5px 10px; margin-bottom: -5px; }
+		.btn span i { background-position: bottom right; margin-bottom: 0; position: absolute; left: 100%; width: 10px; height: 100%; top: 0; }
+		.btn span span { background-position: top right; position: absolute; right: -10px; margin-left: 10px; top: -5px; height: 0; }
+
+		* html .btn span,
+		* html .btn i { float: left; width: auto; background-image: none; cursor: pointer; }
+
+		.btn.blue { background: #2ae; }
+		.btn.green { background: #9d4; }
+		.btn.beige { background: #fec474; padding:5px 5px 5px 5px; }
+		.btn.pink { background: #e1a; }
+		.btn:hover { background-color: #ae5; }
+		.btn:active { background-color: #444; }
+		.btn[class] {  background-image: url(images/shade.png); background-position: bottom; }
+
+		* html .btn { border: 3px double #aaa; }
+		* html .btn.blue { border-color: #2ae; }
+		* html .btn.green { border-color: #9d4; }
+		* html .btn.pink { border-color: #e1a; }
+		* html .btn.beige { background: #fec474; padding:5px 5px 5px 5px;}
+		* html .btn:hover { border-color: #fdbc61; }
+		
+		#mobileWarning {height: 400px; overflow: hidden; position: relative;}
+        #mobileWarning[id] {display: table; position: static;}
+
+        #middle {position: absolute; top: 50%;} /* for explorer only*/
+        #middle[id] {display: table-cell; vertical-align: middle; text-align:center; width: 100%;}
+
+        #inner {position: relative; top: -50%}
+
+        #container, #container2 {position:relative;}
+
+        #img2 {position: absolute;left: 5px;top: 8px;}
+
+        #img22 {position: absolute;left: 5px;top: 8px;}
+
+    </style>
+</head>
+<body>
+    <form name="form1" method="post" action="./demo.aspx" id="form1">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTkwMTYzODM2MmRk9uAWBM8o1vJky05506bXh7AfnHg=" />
+
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="4B50FFE7" />
+<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdAAUP3MIczt6iayOircQ98gDuSHuwN9mzcdEZj4e/jeyVOOc4Kjm5//HFgdqAWr2/5bTQy7bvtw1/OJDo5r7UYGUrk4J3aGzN9znTJi+0sHTQT8eU+tlMposdvatOuAGw1EA8AgPR" />
+    <input type="hidden" name="hdnVersion" id="hdnVersion" value="v3.0.0" />
+    <div id="mobileWarning" style="display:none;border:2px solid #4F6C9C;background-color:#ffffff;width:100%;height:100%;position:absolute;left:4;bottom:4;right:4;top:4;">
+        <div id="Div6" style="background-color:#C68C00;">
+            <img src="images/header_small.png" alt="LOGO" />
+        </div>
+        <div id="middle">
+            <div id="inner" style="font-size:3em;font-weight:bold;">
+                ASA24 is not supported on mobile devices and tablets (iPad, Android Devices, Surface etc.)
+            </div>
+        </div>
+    </div>
+     
+    <div id="chromeOnMacWarning" style="display:none;border:2px solid #4F6C9C;background-color:#ffffff;width:100%;height:100%;position:absolute;left:4;bottom:4;right:4;top:4;">
+        <div id="Div8" style="background-color:#C68C00;">
+            <img src="images/header_small.png" alt="LOGO" />
+        </div>
+        <div id="middle2">
+            <div id="inner2" style="font-size:3em;font-weight:bold;">
+                ASA24 is not supported on Chrome web browser for MacOS.
+            </div>
+        </div>
+    </div>
+    
+    <div id="xnixWarning" style="display:none;border:2px solid #4F6C9C;background-color:#ffffff;width:100%;height:100%;position:absolute;left:4;bottom:4;right:4;top:4;">
+        <div id="Div12" style="background-color:#C68C00;">
+            <img src="images/header_small.png" alt="LOGO" />
+        </div>
+        <div id="middle3">
+            <div id="inner3" style="font-size:3em;font-weight:bold;">
+                ASA24 is not supported on Linux/Unix operating system.
+            </div>
+        </div>
+    </div>
+    
+    <div id="chromeOnWindowWarning" style="display:none;background-color:#ffffff;width:100%;height:100%;">
+        <div id="Div9" style="background-color:#C68C00;">
+            <img src="images/header_small.png" alt="LOGO" />
+        </div>
+        <div id="Div10">
+            <div id="Div11" style="font-size:1.2em;font-weight:bold; font-size:large; margin-top:40px;margin-left:40px; margin-right:40px;">
+                If you are using Chrome web browser and you are having trouble loading ASA24 application, you may need to 
+                enable the Silverlight Plugin (NPAPI Plugins). Follow the step-by-step instructions <a href="./BrowserHelp.aspx">
+                <span style="font-size:1.2em;font-weight:bold; font-size:large;">here...</span></a>
+            </div>
+        </div>
+    </div>
+
+	<div id="silverlightControlHost" class="silverlightHostClass">
+		<div id="mainBlock" style="width:560px;height:320px;border:2px solid #4F6C9C;background-color:#ffffff;position:absolute;top:50%;left:50%;margin-top:-190px;margin-left:-280px;">
+			<div id="headerBlock" style="background-color:#293F6F;">
+			    
+                <div id="container">                    
+                    <img src="images/headerblank_Demo.png" id="img12" alt="LOGO Background"/>
+                    <img src="images/ASA24%20logo%20Final%20Brown-Blue%20simple42.png" id="img22" alt="LOGO" />                    
+                </div>
+                			
+                </div>
+			<div id="footerBlock" style="position:absolute;text-align:right;margin-top:225px;margin-left:220px;">
+				<a href="http://www.usa.gov/" target="_blank"><img src="images/usagov.png" alt="USA" width="113" height="35" style="border:0px;position:relative;" /></a>
+				<a href="http://www.hhs.gov/" target="_blank"><img src="images/dhhs.png" alt="USA" width="35" height="35" style="border:0px;position:;margin-left:5px;" /></a>
+				<a href="http://www.nih.gov/" target="_blank"><img src="images/nih_logo.png" alt="NIH" width="35" height="35" style="border:0px;position:;margin-left:5px;" /></a>
+				<a href="http://www.westat.com/" target="_blank"><img src="images/westat.png" alt="WESTAT" width="116" height="35" style="border:0px;position:;margin-left:5px;" /></a>
+			</div>
+			<div id="versionLabel" style="position:absolute;color:black;font-size:11px;margin-left:5px;margin-top:250px;">
+					PROD&nbsp;v3.0.0
+			</div>
+			<div style="position:absolute;background-color:#6485B5;width:540px;height:2px;margin-left:10px;margin-top:210px;"></div>
+			<div id="s_res" style="display:none;margin-left:20px;position:absolute;">
+				<p>
+				<b><li>Your computer screen's resolution is not set to the recommended setting of 1024 x 768.</li></b>
+				<div>
+					<a href="#" class="showWhy">Why do I need an change my screen resolution</a><br/>
+					<a href="#" class="showHow">What is screen resolution and how do I change it?</a>
+				</div>
+				</p>
+	        
+			</div>      		
+			
+
+			<div id="status" style="display:none;text-align:center;top:35%;position:relative">
+				<img src="images/spinner.gif" alt="spin" />
+					<span style="margin-left:10px;vertical-align:middle;">
+					Please wait a moment while the site is prepared.
+					</span>
+			</div>
+			<div id="buttonBlock" style="display:none;position:relative;top:30%;margin-top:-40px;">
+				<div id="divButtonText" style="font-size:14px;font-weight:bold;color:#222222;text-align:center">
+					Please select the button below to complete ASA24.
+				</div>  
+                <div id="divDemoButtonText" style="font-size:14px;font-weight:bold;color:#222222;text-align:center">
+                    <b>This is the demonstration site for ASA24-2014. <br /> Note, nutrient analysis cannot be done on data entered in this site.</b>
+                    <br />
+                    <br />                    
+					Please choose the version of ASA24 you would like to demo
+				</div>  
+            
+				<div id="divButton" style="width:140px;position:relative;margin-left:auto;margin-right:auto;margin-top:20px;">
+					<input id="btnOpenApp" type="button" class="btn green" onclick="openApp();" value="Launch ASA24" />
+				</div>
+                                
+                <div id="divDemoButtonMain" style="width:230px;position:relative;margin-left:auto;margin-right:auto;margin-top:20px; display: none;">
+					<input type="submit" name="btnDemoMain" value="Launch ASA24 Demo" onclick="RetainProfileId();" id="btnDemoMain" class="green btn" />
+				</div>
+                <br />
+                
+                <div id="divDemoButtonKids" style="width:230px;position:relative;margin-left:auto;margin-right:auto;margin-top:10px;">
+					<input type="submit" name="btnDemoKids" value="Launch ASA24-Kids Demo" onclick="RetainProfileId();" id="btnDemoKids" class="green btn" />
+				</div>
+
+                <input name="txtProfileId" type="text" id="txtProfileId" style="display:none" /> <!-- Comment for TextBox txtProfileId: Hidden field to retain profileId from the first load (hide it by setting CSS "display:none" instead of using the attribute Visible="False" -->
+
+			</div>
+			
+		</div>
+		<div id="altText" style="display:none;">
+			<div id="Div1" style="width:560px;height:320px;border:2px solid darkblue;background-color:#ffffff;position:absolute;top:50%;left:50%;margin-top:-190px;margin-left:-280px;">
+			<div id="Div2" style="background-color:#293F6F;">
+			    
+                <div id="container2">
+                    <img src="images/headerblank.png" id="img1" alt="LOGO Background" />
+                    <img src="images/ASA24%20logo%20Final%20Brown-Blue%20simple42.png" id="img2" alt="LOGO" />
+                </div>
+                			
+			</div>
+			<div id="Div3" style="position:absolute;text-align:right;margin-top:225px;margin-left:220px;">
+				<a href="http://www.usa.gov/" target="_blank"><img src="images/usagov.png" alt="USA" width="113" height="35" style="border:0px;position:relative;" /></a>
+				<a href="http://www.hhs.gov/" target="_blank"><img src="images/dhhs.png" alt="USA" width="35" height="35" style="border:0px;position:;margin-left:5px;" /></a>
+				<a href="http://www.nih.gov/" target="_blank"><img src="images/nih_logo.png" alt="NIH" width="35" height="35" style="border:0px;position:;margin-left:5px;" /></a>
+				<a href="http://www.westat.com/" target="_blank"><img src="images/westat.png" alt="WESTAT" width="116" height="35" style="border:0px;position:;margin-left:5px;" /></a>
+			</div>
+			<div id="Div4" style="position:absolute;color:black;font-size:11px;margin-left:5px;margin-top:250px;">
+					PROD&nbsp;v3.0.0
+			</div>
+			<div style="position:absolute;background-color:#6485B5;width:540px;height:2px;margin-left:10px;margin-top:210px;"></div>
+			<div id="divAltTextAndLogoIE" style="display:none;position:relative;margin-top:15px;margin-left:15px;margin-right:15px;">
+				<div style="font-size:16px;font-weight:;color:#222222;font-family:Cambria;margin-top:-5px;">
+					<div style="margin-bottom:5px">ASA24 makes use of a software from Microsoft called Silverlight to present graphics. You either do not have Silverlight installed or do not have the correct version.</div>
+					Select <b>Install Microsoft Silverlight</b> to go to the Microsoft website to install Silverlight.  The browser will prompt you to either run or save the<br />
+					<a href='javascript:Silverlight.getSilverlight("4.0.60310.0");' style="text-decoration: none;">
+					<img src="images/install.png" alt="Install Microsoft Silverlight" style="border-style: none;float:right;margin-top:10px;" />
+					</a>
+					installation file (Silverlight.exe). Select Run to start the download. When the download is finished, the browser prompts you again to run the installer. Select Run to start the installation. 
+				</div>
+			</div>
+			<div id="divAltTextAndLogoNIE" style="display:;position:relative;margin-top:15px;margin-left:15px;margin-right:15px;">
+				<div style="font-size:16px;font-weight:;color:#222222;font-family:Cambria;margin-top:-5px;">
+					<div style="margin-bottom:5px">ASA24 makes use of a software from Microsoft called Silverlight to present graphics. You either do not have Silverlight installed or do not have the correct version.</div>
+					Select <b>Install Microsoft Silverlight</b> to go to the Microsoft website to install
+					<a href='javascript:Silverlight.getSilverlight("4.0.60310.0");' style="text-decoration: none;">
+					<img src="images/install.png" alt="Install Microsoft Silverlight" style="border-style: none;float:right;margin-left:10px;margin-top:10px;" />
+					</a>
+					the Silverlight program and save the installation file  (Silverlight.exe) to your hard disk. Once the download is finished, click the file to start the installation.
+				</div>
+			</div>
+		
+		</div>
+		</div>
+		<div id="altText1" style="display:none;">
+			<div id="Div5" style="width:560px;height:320px;border:0px solid darkblue;background-color:#ffffff;position:absolute;top:50%;left:50%;margin-top:-190px;margin-left:-280px;">
+				
+				<a href='http://www.microsoft.com/getsilverlight/Get-Started/Install/Default.aspx' style="text-decoration: none;">
+					<img src="images/SilverLightInstallScreens.png" alt="Install Silverlight" style="border:0px" />
+				</a>
+			</div>
+		</div>
+	</div>
+	<div id="qanda">
+		<div id="divWhyRes" class="jqmWindow">
+			<p>
+			<font color="#0000ff"><a style="font-size:14px;font-weight:bold" name="RESWHY">Why do I need to change my screen resolution? </a></font>
+			<p>We suggest you change your screen resolution to the recommended setting of 1024 x 768 so that the questionnaire is optimally displayed on your computer screen.
+			</p>
+			<p><a href="#" style="padding-left:200px" class="jqmClose">Close</a>
+		</div>
+        <div id="divHowRes" class="jqmWindow">
+            <p>
+            <font color="#0000ff"><a style="font-size:14px;font-weight:bold" name="RESHOW">What is screen resolution and how do I change it?  </a></font>
+            <p>
+            Screen resolution refers to the clarity of the text and images on your screen. At higher resolutions, items appear sharper. They also appear smaller, so more items fit on the screen. At lower resolutions, fewer items fit on the screen, but they are larger and easier to see. ACT24 has a lot of detail and is best viewed at the higher resolution 1024 x 768.
+            <p>
+            You might want to note your current settings should you wish to revert back.
+            <p>
+            There are a few different ways to change the screen resolutions. Below is just one way for each popular operation system.
+            <p><a href="#TOP" style="padding-left:200px" class="jqmClose">Close</a>
+
+            <p><span style="font-weight:bold;text-decoration:underline">Changing Your Resolution Under Windows 7</span></p>
+            <p>
+            1. Open Screen Resolution by clicking the <b>Start</b>button, clicking <b>Control Panel</b>, and then, under <b>Appearance and Personalization</b>, clicking <b>Adjust screen resolution</b>. 
+            <p>
+            2. Click the drop-down list next to <b>Resolution</b>, move the slider to 1024 x 768 to select this resolution, and then click <b>Apply</b>.
+            <p>
+            3. Click <b>Keep</b> to use the new resolution.
+            <p><a href="#TOP" style="padding-left:200px" class="jqmClose">Close</a>
+
+            <p><span style="font-weight:bold;text-decoration:underline">Changing Your Resolution Under Windows Vista</span></p>
+            <p>
+            1. Open Display Settings by clicking the <b>Start</b> button clicking <b>Control Panel</b>, clicking <b>Appearance and Personalization</b>, <b>Personalization</b>, and then clicking <b>Display Settings</b>.
+            <p>
+            2. Under <b>Resolution</b>, move the slider to the resolution so that 1024 x 768 is selected. Click Apply
+            <p><a href="#TOP" style="padding-left:200px" class="jqmClose">Close</a>
+
+            <p><span style="font-weight:bold;text-decoration:underline">Changing Your Resolution Under Windows XP</span></p>
+            <p>
+            1. Open Settings by clicking the <b>Start</b> button clicking <b>Control Panel</b> and then clicking <b>Display</b>. Choose the <b>Settings</b> tab.
+            <p>
+            2. Move the slider to the resolution so that 1024 x 768 is selected. Click <b>Apply</b> and then click <b>OK</b>.
+            <p><a href="#TOP" style="padding-left:200px" class="jqmClose">Close</a>
+
+            <p><span style="font-weight:bold;text-decoration:underline">Changing Your Resolution with a Macintosh</span></p>
+            <p>
+            For all Macintosh operating systems below OS X, resolution settings are found under the Apple Menu. Select <b>Control Panels</b>, and then <b>Monitors and Sound</b>. Or, you can use the Control Strip at the bottom of the screen, and click on the Screen resolution icon.
+            <p>
+            For Macintosh OS X, resolution settings are found by clicking the Apple Menu, and then selecting <b>System Preferences</b> and then <b>Displays</b>. Or you can click on the Apple in the Dock at the bottom, and select Displays.
+            <p>
+            Follow the above instructions to revert back to any previous settings, if desired.
+            <p><a href="#TOP" style="padding-left:200px" class="jqmClose">Close</a>
+        </div>
+
+	</div>
+    </form>
+    <script>
+        //DisplayDemoOptions after page loaded
+        window.onload = DisplayDemoOptions;
+
+        //alert($('#hdnVersion').val());
+    </script>
+</body>
+</html>
